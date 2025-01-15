@@ -12,3 +12,13 @@ class CreateUserSchemaResponse(CreateUserSchema):
 
     class Config:
         orm_mode = True
+
+
+class UserLoginSchema(BaseModel):
+    email: str
+    password: str
+
+
+class UserLoginSchemaResponse(BaseModel):
+    token: str
+    token_type: str = "bearer"
