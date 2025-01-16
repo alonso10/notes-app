@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, func
+from sqlalchemy.orm import relationship
 
 from app.database.config import Base
 
@@ -14,3 +15,5 @@ class UserModel(Base):
     updated_at = Column(
         DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
     )
+
+    notes = relationship("NoteModel", back_populates="user")

@@ -25,6 +25,11 @@ class TokenException(GeneralException):
         super().__init__(HTTPStatus.UNAUTHORIZED, "Invalid token")
 
 
+class NoteNotFoundException(GeneralException):
+    def __init__(self):
+        super().__init__(HTTPStatus.NOT_FOUND, "Note not found")
+
+
 class ApiErrorMessage(BaseModel):
     message: str
     status: int
