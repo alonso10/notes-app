@@ -8,10 +8,10 @@ from fastapi.responses import JSONResponse
 from app.config.settings import Settings
 from app.database.config import Base, engine
 from app.routes.auth_router import auth_router
+from app.routes.notes_router import notes_router
 from app.services.errors import (
     GeneralException,
     ApiErrorMessage,
-    UserAlreadyExistsException,
 )
 
 
@@ -24,6 +24,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(router=auth_router, prefix="/api")
+app.include_router(router=notes_router, prefix="/api")
 
 
 @app.exception_handler(GeneralException)
@@ -31,14 +32,6 @@ async def general_exception_handler(request: Request, exc: GeneralException):
     error = ApiErrorMessage(
         type=exc.__class__.__name__,
         message=str(exc.message),
-        status=HTTPStatus.INTERNAL_SERVER_ERROR,
-    )
-    return JSONResponse(status_code=error.status, content=error.model_dump())
-
-
-@app.exception_handler(UserAlreadyExistsException)
-async def user_already_exception_handler(request: Request, exc: UserAlreadyExistsException):
-    error = ApiErrorMessage(
-        type=exc.__class__.__name__, message=str(exc.message), status=exc.status
+        status=exc.status if exc.status else HTTPStatus.INTERNAL_SERVER_ERROR,
     )
     return JSONResponse(status_code=error.status, content=error.model_dump())

@@ -14,3 +14,6 @@ class JWTService:
         expire = datetime.now(timezone.utc) + timedelta(minutes=self.settings.jwt_expiration)
         data_to_encode.update({"exp": expire})
         return jwt.encode(data_to_encode, self.settings.secret_key, algorithm=self.settings.jwt_algorithms)
+
+    def decode_token(self, token: str):
+        return jwt.decode(token, self.settings.secret_key, algorithms=[self.settings.jwt_algorithms])

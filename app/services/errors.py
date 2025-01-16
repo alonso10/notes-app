@@ -20,6 +20,11 @@ class CredentialsException(GeneralException):
         super().__init__(HTTPStatus.UNAUTHORIZED, "Invalid credentials")
 
 
+class TokenException(GeneralException):
+    def __init__(self):
+        super().__init__(HTTPStatus.UNAUTHORIZED, "Invalid token")
+
+
 class ApiErrorMessage(BaseModel):
     message: str
     status: int
