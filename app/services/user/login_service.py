@@ -1,4 +1,4 @@
-from app.schemas.user.schema import UserLoginSchemaResponse
+from app.schemas.user.schema import UserLoginSchemaResponse, UserDataScheme, UserAuthSchema
 from app.services.errors import CredentialsException
 from app.services.jwt.service import JWTService
 from app.services.user.service import UserService
@@ -15,5 +15,7 @@ class UserLoginService:
             password, user.password
         ):
             token = self.jwtService.create_access_token({"sub": user.email})
-            return UserLoginSchemaResponse(token=token)
+            user_schema = UserDataScheme(id=user.id, email=user.email, name=user.name)
+            auth_schema = UserAuthSchema(token=token)
+            return UserLoginSchemaResponse(user=user_schema, auth=auth_schema)
         raise CredentialsException()
