@@ -30,6 +30,11 @@ class NoteNotFoundException(GeneralException):
         super().__init__(HTTPStatus.NOT_FOUND, "Note not found")
 
 
+class NoteUpdateBlockedException(GeneralException):
+    def __init__(self):
+        super().__init__(HTTPStatus.CONFLICT, "Note update blocked")
+
+
 class ApiErrorMessage(BaseModel):
     message: str
     status: int

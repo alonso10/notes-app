@@ -1,9 +1,11 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 
+from psycopg2.errors import DeadlockDetected, IdleSessionTimeout as LockWaitTimeout
+
 from app.database.models.notes_model import NoteModel
 from app.schemas.notes.schema import CreateNoteSchema, NoteBaseSchema
-from app.services.errors import NoteNotFoundException
+from app.services.errors import NoteNotFoundException, NoteUpdateBlockedException
 
 
 class NoteService:
@@ -31,26 +33,30 @@ class NoteService:
         return note
 
     def update(self, note_id: int, note: NoteBaseSchema, user_id: int):
-        result = self.db.execute(
-            text(
-                "SELECT * FROM notes WHERE id = :note_id AND user_id = :user_id FOR UPDATE"
-            ),
-            {"note_id": note_id, "user_id": user_id},
-        )
-        row = result.fetchone()
-        if not row:
-            raise NoteNotFoundException()
+        try:
+            result = self.db.execute(
+                text(
+                    "SELECT * FROM notes WHERE id = :note_id AND user_id = :user_id FOR UPDATE"
+                ),
+                {"note_id": note_id, "user_id": user_id},
+            )
+            row = result.fetchone()
+            if not row:
+                raise NoteNotFoundException()
 
-        note_found = (
-            self.db.query(NoteModel)
-            .filter(NoteModel.id == note_id, NoteModel.user_id == user_id)
-            .first()
-        )
-        note_found.title = note.title
-        note_found.content = note.content
-        self.db.commit()
-        self.db.refresh(note_found)
-        return note_found
+            note_found = (
+                self.db.query(NoteModel)
+                .filter(NoteModel.id == note_id, NoteModel.user_id == user_id)
+                .first()
+            )
+            note_found.title = note.title
+            note_found.content = note.content
+            self.db.commit()
+            self.db.refresh(note_found)
+            return note_found
+        except (LockWaitTimeout, DeadlockDetected):
+            raise NoteUpdateBlockedException()
+
 
     def delete(self, note_id: int, user_id: int):
         note_found = (
