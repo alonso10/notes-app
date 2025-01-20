@@ -6,7 +6,7 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 
 from app.config.settings import Settings
-from app.database.config import Base, engine
+from app.database.config import init_models
 from app.routes.auth_router import auth_router
 from app.routes.notes_router import notes_router
 from app.services.errors import (
@@ -20,11 +20,15 @@ def get_settings():
     return Settings()
 
 
-Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(router=auth_router, prefix="/api")
 app.include_router(router=notes_router, prefix="/api")
+
+
+@app.on_event("startup")
+async def startup_event():
+    await init_models()
 
 
 @app.exception_handler(GeneralException)

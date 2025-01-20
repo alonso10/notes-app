@@ -19,7 +19,7 @@ async def register(
     user_request: CreateUserSchema,
     user_service: UserService = Depends(init_user_service),
 ):
-    return user_service.create_user(user_request)
+    return await user_service.create_user(user_request)
 
 
 @auth_router.post("/login", response_model=UserLoginSchemaResponse)
@@ -27,4 +27,4 @@ async def login(
     request: UserLoginSchema,
     login_service: UserLoginService = Depends(init_login_service),
 ):
-    return login_service.execute(request.email, request.password)
+    return await login_service.execute(request.email, request.password)

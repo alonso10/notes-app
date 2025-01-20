@@ -1,4 +1,8 @@
-from app.schemas.user.schema import UserLoginSchemaResponse, UserDataScheme, UserAuthSchema
+from app.schemas.user.schema import (
+    UserLoginSchemaResponse,
+    UserDataScheme,
+    UserAuthSchema,
+)
 from app.services.errors import CredentialsException
 from app.services.jwt.service import JWTService
 from app.services.user.service import UserService
@@ -9,8 +13,9 @@ class UserLoginService:
         self.userService = user_service
         self.jwtService = jwt_service
 
-    def execute(self, email: str, password: str):
-        user = self.userService.get_user_by_email(email)
+    async def execute(self, email: str, password: str):
+        user = await self.userService.get_user_by_email(email)
+        print("user", user)
         if user and self.userService.hashService.verify_password(
             password, user.password
         ):

@@ -10,7 +10,7 @@ class UserAuthService:
         self.userService = user_service
         self.jwtService = jwt_service
 
-    def authenticate(self, token: str):
+    async def authenticate(self, token: str):
         try:
             data = self.jwtService.decode_token(token)
             email: str = data.get("sub")
@@ -19,7 +19,8 @@ class UserAuthService:
         except jwt.InvalidTokenError:
             raise TokenException()
 
-        user = self.userService.get_user_by_email(email)
+        user = await self.userService.get_user_by_email(email)
+        print("user", user)
         if user is None:
             raise TokenException()
         return user
