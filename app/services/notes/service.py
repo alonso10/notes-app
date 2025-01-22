@@ -20,6 +20,7 @@ class NoteService:
         model = NoteModel(**note.model_dump())
         self.db.add(model)
         await self.db.commit()
+        await self.db.refresh(model)
         return model
 
     async def get_all(self, user_id: int):
@@ -60,6 +61,7 @@ class NoteService:
             db_note.title = note.title
             db_note.content = note.content
             await self.db.commit()
+            await self.db.refresh(db_note)
             return db_note
         except (LockWaitTimeout, DeadlockDetectedError):
             raise NoteUpdateBlockedException()

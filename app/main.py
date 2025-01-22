@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from http import HTTPStatus
 
@@ -6,7 +7,7 @@ from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 
 from app.config.settings import Settings
-from app.database.config import init_models
+from app.database.config import init_models, sessionmanager
 from app.routes.auth_router import auth_router
 from app.routes.notes_router import notes_router
 from app.services.errors import (
@@ -20,15 +21,20 @@ def get_settings():
     return Settings()
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    sessionmanager.init(get_settings().get_database_url())
+    async with sessionmanager.connect() as connection:
+        await init_models(connection)
+    yield
+    if sessionmanager._engine is not None:
+        await sessionmanager.close()
+
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(router=auth_router, prefix="/api")
 app.include_router(router=notes_router, prefix="/api")
-
-
-@app.on_event("startup")
-async def startup_event():
-    await init_models()
 
 
 @app.exception_handler(GeneralException)

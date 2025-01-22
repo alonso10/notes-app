@@ -13,18 +13,19 @@ class UserService:
         self.db = db
 
     async def create_user(self, user: CreateUserSchema):
-        async with self.db.begin():
-            user_by_email = await self.get_user_by_email(user.email)
+        user_by_email = await self.get_user_by_email(user.email)
 
-            if user_by_email:
-                raise UserAlreadyExistsException(user.email)
+        if user_by_email:
+            raise UserAlreadyExistsException(user.email)
 
-            hashed_password = self.hashService.hash_password(user.password)
-            model = UserModel(
-                name=user.name, email=user.email, password=hashed_password
-            )
-            self.db.add(model)
-            return model
+        hashed_password = self.hashService.hash_password(user.password)
+        model = UserModel(
+            name=user.name, email=user.email, password=hashed_password
+        )
+        self.db.add(model)
+        await self.db.commit()
+        await self.db.refresh(model)
+        return model
 
     async def get_user_by_email(self, email: str):
         result = await self.db.execute(select(UserModel).filter_by(email=email))

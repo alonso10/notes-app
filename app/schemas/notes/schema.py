@@ -19,5 +19,5 @@ class NoteSchema(NoteBaseSchema):
     updated_at: datetime
     user_id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True

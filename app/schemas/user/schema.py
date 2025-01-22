@@ -10,7 +10,7 @@ class CreateUserSchema(BaseModel):
 class CreateUserSchemaResponse(CreateUserSchema):
     id: int
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
 
@@ -24,8 +24,8 @@ class UserDataScheme(BaseModel):
     email: str
     name: str
 
-    class Config:
-        orm_mode = True
+    class ConfigDict:
+        from_attributes = True
 
 
 class UserAuthSchema(BaseModel):

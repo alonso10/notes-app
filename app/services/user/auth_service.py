@@ -20,7 +20,6 @@ class UserAuthService:
             raise TokenException()
 
         user = await self.userService.get_user_by_email(email)
-        print("user", user)
         if user is None:
             raise TokenException()
         return user
