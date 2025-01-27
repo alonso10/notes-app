@@ -19,9 +19,7 @@ class UserService:
             raise UserAlreadyExistsException(user.email)
 
         hashed_password = self.hashService.hash_password(user.password)
-        model = UserModel(
-            name=user.name, email=user.email, password=hashed_password
-        )
+        model = UserModel(name=user.name, email=user.email, password=hashed_password)
         self.db.add(model)
         await self.db.commit()
         await self.db.refresh(model)

@@ -2,6 +2,6 @@
 
 venv
 /.env
-test.env
+/test.env
 
 __pycache__

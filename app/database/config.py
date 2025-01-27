@@ -2,13 +2,18 @@ import contextlib
 from typing import AsyncIterator
 
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncSession, AsyncEngine, AsyncConnection, AsyncAttrs
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,
+    create_async_engine,
+    AsyncSession,
+    AsyncEngine,
+    AsyncConnection,
+    AsyncAttrs,
+)
 
 
-
-
-#engine = create_async_engine(settings.database_url, echo=True, future=True)
-#async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+# engine = create_async_engine(settings.database_url, echo=True, future=True)
+# async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -22,7 +27,9 @@ class DatabaseSessionManager:
 
     def init(self, host: str):
         self._engine = create_async_engine(host)
-        self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine, class_=AsyncSession)
+        self._sessionmaker = async_sessionmaker(
+            autocommit=False, bind=self._engine, class_=AsyncSession
+        )
 
     async def close(self):
         if self._engine is None:
@@ -64,6 +71,7 @@ class DatabaseSessionManager:
     async def drop_all(self, connection: AsyncConnection):
         await connection.run_sync(Base.metadata.drop_all)
 
+
 sessionmanager = DatabaseSessionManager()
 
 
@@ -74,6 +82,7 @@ async def get_db():
 
 async def init_models(connection: AsyncConnection):
     await sessionmanager.create_all(connection)
+
 
 """
 async def get_db():
